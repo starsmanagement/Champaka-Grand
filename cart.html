@@ -1,0 +1,114 @@
+<!-- ========================= -->
+<!-- cart.html -->
+<!-- ========================= -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Your Cart</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">🍴 Champaka Grand</div>
+    <nav class="nav-links">
+      <a href="index.html">Menu</a>
+      <a href="cart.html">Cart</a>
+      <a href="about.html">About</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <h1>🛒 Your Cart</h1>
+    <div id="cart-list" class="cart-items"></div>
+    <p>Total: ₹<span id="total">0</span></p>
+
+    <h3>Payment Method:</h3>
+    <label><input type="radio" name="payment" value="UPI" checked> UPI</label><br>
+    <label><input type="radio" name="payment" value="Card"> Card</label><br>
+    <label><input type="radio" name="payment" value="COD"> Cash on Delivery</label><br><br>
+
+    <button onclick="placeOrder()">✅ Place Order</button>
+  </div>
+
+  <footer>
+    <div class="footer-content">
+      <h3>About Our Restaurant</h3>
+      <p>Email: contact@fooddemo.com | Phone: +91-9876543210</p>
+      <p>Address: Nithyashree Complex, 289/7, Begur Rd, near Indian oil petrol bunk, Maruthi Layout, Hongasandra, Bengaluru, Karnataka 560068</p>
+      <div class="nav-links">
+        <a href="index.html">Menu</a>
+        <a href="cart.html">Cart</a>
+        <a href="about.html">About</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const cartList = document.getElementById('cart-list');
+    const totalSpan = document.getElementById('total');
+
+    const imageMap = {
+      "Roti": "images/roti.png",
+      "Drink": "images/drink.png",
+      "Momos": "images/momos.png",
+      "Tandoor": "images/tandoor.png",
+      "Roll": "images/roll.png"
+    };
+
+    function renderCart() {
+      cartList.innerHTML = '';
+      let total = 0;
+
+      cart.forEach((itemObj, index) => {
+        const { item, price, quantity = 1 } = itemObj;
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'cart-item';
+
+        itemDiv.innerHTML = `
+          <img src="${imageMap[item] || 'images/default.png'}" alt="${item}" />
+          <div class="item-details">
+            <p><strong>${item}</strong></p>
+            <p>₹${price} x 
+              <input type="number" min="1" value="${quantity}" onchange="updateQuantity(${index}, this.value)" />
+            </p>
+            <p>Subtotal: ₹${price * quantity}</p>
+            <button class="remove-btn" onclick="removeItem(${index})">🗑 Remove</button>
+          </div>
+        `;
+
+        cartList.appendChild(itemDiv);
+        total += price * quantity;
+      });
+
+      totalSpan.textContent = total;
+      localStorage.setItem('cart', JSON.stringify(cart));
+    }
+
+    function updateQuantity(index, newQty) {
+      const qty = Math.max(1, parseInt(newQty));
+      cart[index].quantity = qty;
+      renderCart();
+    }
+
+    function removeItem(index) {
+      cart.splice(index, 1);
+      renderCart();
+    }
+
+    function placeOrder() {
+      if (cart.length === 0) {
+        alert("Your cart is empty!");
+        return;
+      }
+      const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+      alert(`Order placed using ${paymentMethod}! Thank you 😊`);
+      localStorage.removeItem('cart');
+      window.location.href = 'thankyou.html';
+    }
+
+    renderCart();
+  </script>
+</body>
+</html>
